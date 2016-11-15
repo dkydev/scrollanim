@@ -1,0 +1,9 @@
+#menu {
+    position:absolute;
+    right:0px;
+    width:200px;
+    top:0px;
+    bottom:0px;
+    background-color:#222;
+    z-index:100;
+}

@@ -1,0 +1,67 @@
+{
+    "scenes": [
+        {
+            "id": "scene_1",
+            "props": {
+                "bg": {
+                    "src": "content/pond.jpg",
+                    "z": 1
+                },
+                "duck1": {
+                    "src": "content/duck1.jpg",
+                    "z": 2
+                },
+                "duck2": {
+                    "src": "content/duck2.png",
+                    "z": 3
+                }
+            },
+            "key_frames": [
+                {
+                    "props": {
+                        "duck1": {
+                            "width": "100",
+                            "height": "100",
+                            "x": 20,
+                            "y": 110
+                        },
+                        "bg": {
+                            "x": 50,
+                            "y": 100
+                        }
+                    },
+                    "start": 0,
+                    "end": 999
+                },
+                {
+                    "props": {
+                        "bg": {
+                            "x": 0,
+                            "y": 100
+                        },
+                        "duck1": {
+                            "width": "100",
+                            "height": "100",
+                            "x": 60,
+                            "y": 110
+                        }
+                    },
+                    "start": 1000,
+                    "end": 1999
+                },
+                {
+                    "props": {
+                        "duck1": {
+                            "width": "100",
+                            "height": "100",
+                            "x": 260,
+                            "y": 210
+                        }
+                    },
+                    "start": 2000,
+                    "end": 2000
+                }
+            ]
+        }
+    ]
+}

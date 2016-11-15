@@ -1,0 +1,14 @@
+html, body {
+    height:100%;
+    padding:0px;
+    margin:0px;
+}
+
+#stage {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    overflow:hidden;
+    min-height:100%;
+}

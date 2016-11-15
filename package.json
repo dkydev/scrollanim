@@ -1,0 +1,22 @@
+{
+  "name": "scrollanim",
+  "version": "1.0.0",
+  "description": "Scrolling animation framework.",
+  "main": "bin/main.js",
+  "bin": {
+    "scrollanim": "main.js"
+  },
+  "dependencies": {
+    "jquery": "^3.1.1"
+  },
+  "devDependencies": {
+    "browserify": "^13.1.1",
+    "tsify": "^2.0.2",
+    "typescript": "^2.0.6"
+  },
+  "scripts": {
+    "build": "browserify src/Main.ts -p [tsify -p .] > bin/main.js"
+  },
+  "author": "Nick Robson",
+  "license": "ISC"
+}
