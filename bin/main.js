@@ -10222,6 +10222,22 @@ return jQuery;
 
 },{}],2:[function(require,module,exports){
 "use strict";
+var Keyframe = (function () {
+    function Keyframe(data) {
+        this.start = data["start"];
+        this.end = data["end"];
+        this.x = data["x"];
+        this.y = data["y"];
+        this.width = data["width"];
+        this.height = data["height"];
+    }
+    return Keyframe;
+}());
+exports.__esModule = true;
+exports["default"] = Keyframe;
+
+},{}],3:[function(require,module,exports){
+"use strict";
 var Stage_1 = require("./Stage");
 var $ = require("jquery");
 $.get("content/data.json").done(function (data) {
@@ -10234,34 +10250,78 @@ $.get("content/data.json").done(function (data) {
     }).trigger("resize");
 });
 
-},{"./Stage":5,"jquery":1}],3:[function(require,module,exports){
+},{"./Stage":6,"jquery":1}],4:[function(require,module,exports){
 "use strict";
+var Keyframe_1 = require("./Keyframe");
 var Prop = (function () {
-    function Prop(id, src, z, container) {
-        this.id = id;
-        this.src = src;
-        this.z = z;
+    function Prop(data, container) {
+        this.id = data["id"];
+        this.src = data["src"];
+        this.z = data["z"];
+        this.keyframes = [];
+        for (var i in data["keyframes"]) {
+            this.keyframes.push(new Keyframe_1["default"](data["keyframes"][i]));
+        }
+        console.log(this.keyframes);
+        this.keyframes.sort(function (a, b) {
+            return a.start > b.start ? 1 : -1;
+        });
         this.element = $("<img>").attr("id", this.id).attr("src", this.src).get(0);
         this.container = container;
     }
+    Prop.prototype.setFrame = function (frame) {
+        this.currentFrame = frame;
+        var lastKeyFrame = null;
+        var nextKeyFrame = null;
+        for (var i = 0; i < this.keyframes.length; i++) {
+            if (this.keyframes[i].start <= frame && this.keyframes[i].end >= frame) {
+                lastKeyFrame = this.keyframes[i];
+                if (this.keyframes[i + 1]) {
+                    nextKeyFrame = this.keyframes[i + 1];
+                }
+                break;
+            }
+        }
+        if (!lastKeyFrame) {
+            this.detach();
+            return;
+        }
+        var position;
+        if (nextKeyFrame) {
+            position = (this.currentFrame - lastKeyFrame.start) / (nextKeyFrame.start - lastKeyFrame.start);
+        }
+        else {
+            position = 1;
+        }
+        this.attach();
+        this.render(position, lastKeyFrame, nextKeyFrame);
+    };
+    Prop.prototype.getMaxFrames = function () {
+        if (this.keyframes.length > 0) {
+            return this.keyframes[this.keyframes.length - 1].end;
+        }
+        else {
+            return 0;
+        }
+    };
     Prop.prototype.attach = function () {
         $(this.container).append(this.element);
     };
     Prop.prototype.detach = function () {
         $(this.element).detach();
     };
-    Prop.prototype.render = function (position, startData, endData) {
-        if (!endData) {
-            endData = startData;
+    Prop.prototype.render = function (position, start, end) {
+        if (!end) {
+            end = start;
         }
-        if (startData["width"]) {
-            this.width = (endData["width"] - startData["width"]) * position + startData["width"];
+        if (start.width) {
+            this.width = (end.width - start.width) * position + start.width;
         }
-        if (startData["height"]) {
-            this.height = (endData["height"] - startData["height"]) * position + startData["height"];
+        if (start.height) {
+            this.height = (end.height - start.height) * position + start.height;
         }
-        this.x = (endData["x"] - startData["x"]) * position + startData["x"];
-        this.y = (endData["y"] - startData["y"]) * position + startData["y"];
+        this.x = (end.x - start.x) * position + start.x;
+        this.y = (end.y - start.y) * position + start.y;
         $(this.element).css({
             "position": "fixed",
             "width": this.width ? this.width + "px" : "auto",
@@ -10276,21 +10336,19 @@ var Prop = (function () {
 exports.__esModule = true;
 exports["default"] = Prop;
 
-},{}],4:[function(require,module,exports){
+},{"./Keyframe":2}],5:[function(require,module,exports){
 "use strict";
 var Prop_1 = require("./Prop");
 var Scene = (function () {
     function Scene(stage, data) {
         this.stage = stage;
         this.id = data["id"];
-        this.keyFrames = data["key_frames"];
-        this.keyFrames.sort(function (a, b) {
-            return a.start > b.start ? 1 : -1;
-        });
-        this.maxFrames = this.keyFrames[this.keyFrames.length - 1].end;
+        this.maxFrames = 0;
         this.props = {};
-        for (var id in data["props"]) {
-            this.props[id] = new Prop_1["default"](id, data["props"][id].src, data["props"][id].z, this.stage.getContainer());
+        for (var i in data["props"]) {
+            var propData = data["props"][i];
+            this.props[propData["id"]] = new Prop_1["default"](propData, this.stage.getContainer());
+            this.maxFrames = Math.max(this.maxFrames, this.props[propData["id"]].getMaxFrames());
         }
     }
     Scene.prototype.load = function () {
@@ -10301,41 +10359,8 @@ var Scene = (function () {
     };
     Scene.prototype.setFrame = function (frame) {
         this.currentFrame = frame;
-        this.lastKeyFrame = null;
-        this.nextKeyFrame = null;
-        for (var i = 0; i < this.keyFrames.length; i++) {
-            if (this.keyFrames[i].start <= frame && this.keyFrames[i].end >= frame) {
-                this.lastKeyFrame = this.keyFrames[i];
-                if (this.keyFrames[i + 1]) {
-                    this.nextKeyFrame = this.keyFrames[i + 1];
-                }
-                break;
-            }
-        }
-        if (!this.lastKeyFrame) {
-            throw new Error("No key frame.");
-        }
-        var position;
-        if (this.nextKeyFrame) {
-            position = (this.currentFrame - this.lastKeyFrame.start) / (this.nextKeyFrame.start - this.lastKeyFrame.start);
-        }
-        else {
-            position = 1;
-        }
         for (var id in this.props) {
-            if (!this.lastKeyFrame["props"][id]) {
-                this.props[id].detach();
-            }
-            else {
-                this.props[id].attach();
-                if (this.nextKeyFrame && this.nextKeyFrame["props"][id]) {
-                    this.props[id].render(position, this.lastKeyFrame["props"][id], this.nextKeyFrame["props"][id]);
-                }
-                else {
-                    this.props[id].render(position, this.lastKeyFrame["props"][id], null);
-                }
-                this.props[id].attach();
-            }
+            this.props[id].setFrame(this.currentFrame);
         }
     };
     return Scene;
@@ -10343,7 +10368,7 @@ var Scene = (function () {
 exports.__esModule = true;
 exports["default"] = Scene;
 
-},{"./Prop":3}],5:[function(require,module,exports){
+},{"./Prop":4}],6:[function(require,module,exports){
 "use strict";
 var Scene_1 = require("./Scene");
 var Stage = (function () {
@@ -10380,4 +10405,4 @@ var Stage = (function () {
 exports.__esModule = true;
 exports["default"] = Stage;
 
-},{"./Scene":4}]},{},[2]);
+},{"./Scene":5}]},{},[3]);
