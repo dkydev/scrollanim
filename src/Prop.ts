@@ -27,12 +27,11 @@ export default class Prop {
         for (var i in data["keyframes"]) {
             this.keyframes.push(new Keyframe(data["keyframes"][i]));
         }
-        console.log(this.keyframes);
 
         // Sort frames.
         this.keyframes.sort((a: Keyframe, b: Keyframe): number => {
             return a.start > b.start ? 1 : -1;
-        })
+        });
 
         this.element = $("<img>").attr("id", this.id).attr("src", this.src).get(0);
         this.container = container;
@@ -46,7 +45,7 @@ export default class Prop {
         var nextKeyFrame: Keyframe = null;
 
         for (var i: number = 0; i < this.keyframes.length; i++) {
-            if (this.keyframes[i].start <= frame && this.keyframes[i].end >= frame) {
+            if (this.keyframes[i].start <= frame && (!this.keyframes[i + 1] || this.keyframes[i + 1].start >= frame)) {
                 lastKeyFrame = this.keyframes[i];
                 if (this.keyframes[i + 1]) {
                     nextKeyFrame = this.keyframes[i + 1];
@@ -73,7 +72,7 @@ export default class Prop {
 
     public getMaxFrames(): number {
         if (this.keyframes.length > 0) {
-            return this.keyframes[this.keyframes.length - 1].end;
+            return this.keyframes[this.keyframes.length - 1].start;
         } else {
             return 0;
         }
@@ -104,7 +103,7 @@ export default class Prop {
         this.y = (end.y - start.y) * position + start.y;
 
         $(this.element).css({
-            "position": "fixed",
+            "position": "absolute",
             "width": this.width ? this.width + "px" : "auto",
             "height": this.height ? this.height + "px" : "auto",
             "left": this.x + "px",

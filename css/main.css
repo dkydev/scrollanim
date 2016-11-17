@@ -4,11 +4,44 @@ html, body {
     margin:0px;
 }
 
+#stage-container {
+    
+    overflow:hidden;
+    position:absolute;
+    top:0px;
+    left:220px;
+    right:0px;
+    bottom:0px;
+}
+
 #stage {
     position: absolute;
+    overflow: hidden;
     top: 0px;
     left: 0px;
     right: 0px;
-    overflow:hidden;
-    min-height:100%;
+    bottom: 0px;
+    width: 100%;
+    min-height: 100%;
+}
+
+#stage-scroll {
+    overflow: auto;
+    z-index: 1000000;
+    position: absolute;
+    top: 0px;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+}
+
+#info-container {
+    padding: 10px;
+    position:fixed;
+    top:0px;
+    left:0px;
+    bottom:0px;
+    width:200px;
+    color: white;
+    background: rgba(150, 150, 150, 0.8);
 }

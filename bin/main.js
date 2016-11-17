@@ -10243,10 +10243,11 @@ var $ = require("jquery");
 $.get("content/data.json").done(function (data) {
     window.stage = new Stage_1["default"]($("#stage").get(0), data);
     window.stage.loadScene("scene_1");
-    $(window).scroll(function (e) {
-        window.stage.getCurrentScene().setFrame($(window).scrollTop());
+    $("#stage-scroll").scroll(function (e) {
+        window.stage.getCurrentScene().setFrame($("#stage-scroll").scrollTop());
+        $("#info").html(window.stage.getCurrentScene().getCurrentFrame().toString());
     }).resize(function (e) {
-        $(window.stage.getContainer()).height($(window).height() + window.stage.getCurrentScene().getMaxFrames());
+        $("#stage-scroll-beef").height($("#stage-container").height() + window.stage.getCurrentScene().getMaxFrames());
     }).trigger("resize");
 });
 
@@ -10262,7 +10263,6 @@ var Prop = (function () {
         for (var i in data["keyframes"]) {
             this.keyframes.push(new Keyframe_1["default"](data["keyframes"][i]));
         }
-        console.log(this.keyframes);
         this.keyframes.sort(function (a, b) {
             return a.start > b.start ? 1 : -1;
         });
@@ -10274,7 +10274,7 @@ var Prop = (function () {
         var lastKeyFrame = null;
         var nextKeyFrame = null;
         for (var i = 0; i < this.keyframes.length; i++) {
-            if (this.keyframes[i].start <= frame && this.keyframes[i].end >= frame) {
+            if (this.keyframes[i].start <= frame && (!this.keyframes[i + 1] || this.keyframes[i + 1].start >= frame)) {
                 lastKeyFrame = this.keyframes[i];
                 if (this.keyframes[i + 1]) {
                     nextKeyFrame = this.keyframes[i + 1];
@@ -10298,7 +10298,7 @@ var Prop = (function () {
     };
     Prop.prototype.getMaxFrames = function () {
         if (this.keyframes.length > 0) {
-            return this.keyframes[this.keyframes.length - 1].end;
+            return this.keyframes[this.keyframes.length - 1].start;
         }
         else {
             return 0;
@@ -10323,7 +10323,7 @@ var Prop = (function () {
         this.x = (end.x - start.x) * position + start.x;
         this.y = (end.y - start.y) * position + start.y;
         $(this.element).css({
-            "position": "fixed",
+            "position": "absolute",
             "width": this.width ? this.width + "px" : "auto",
             "height": this.height ? this.height + "px" : "auto",
             "left": this.x + "px",
@@ -10353,6 +10353,9 @@ var Scene = (function () {
     }
     Scene.prototype.load = function () {
         this.setFrame(0);
+    };
+    Scene.prototype.getCurrentFrame = function () {
+        return this.currentFrame;
     };
     Scene.prototype.getMaxFrames = function () {
         return this.maxFrames;

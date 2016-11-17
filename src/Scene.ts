@@ -32,6 +32,9 @@ export default class Scene {
         this.setFrame(0);
     }
 
+    public getCurrentFrame():number {
+        return this.currentFrame;
+    }
     public getMaxFrames(): number {
         return this.maxFrames;
     }

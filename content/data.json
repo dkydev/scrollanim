@@ -10,13 +10,11 @@
                     "keyframes": [
                         {
                             "start": 0,
-                            "end": 999,
                             "x": 50,
                             "y": 100
                         },
                         {
                             "start": 1000,
-                            "end": 1999,
                             "x": 0,
                             "y": 100
                         }
@@ -29,25 +27,22 @@
                     "keyframes": [
                         {
                             "start": 0,
-                            "end": 499,
-                            "width": "100",
-                            "height": "100",
+                            "width": 100,
+                            "height": 100,
                             "x": 20,
                             "y": 110
                         },
                         {
                             "start": 500,
-                            "end": 999,
-                            "width": "100",
-                            "height": "100",
+                            "width": 100,
+                            "height": 100,
                             "x": 50,
                             "y": 220
                         },
                         {
                             "start": 1000,
-                            "end": 1999,
-                            "width": "100",
-                            "height": "100",
+                            "width": 100,
+                            "height": 100,
                             "x": 60,
                             "y": 110
                         }
@@ -57,7 +52,36 @@
                     "id": "duck2",
                     "src": "content/duck2.png",
                     "z": 3,
-                    "keyframes": []
+                    "keyframes": [
+                        {
+                            "start": 0,
+                            "width": 100,
+                            "height": 100,
+                            "x": 20,
+                            "y": 110
+                        },
+                        {
+                            "start": 200,
+                            "width": 100,
+                            "height": 100,
+                            "x": 50,
+                            "y": 220
+                        },
+                        {
+                            "start": 400,
+                            "width": 100,
+                            "height": 100,
+                            "x": 50,
+                            "y": 220
+                        },
+                        {
+                            "start": 700,
+                            "width": 100,
+                            "height": 100,
+                            "x": 50,
+                            "y": 499
+                        }
+                    ]
                 }
             ]
         }
