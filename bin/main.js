@@ -10247,7 +10247,7 @@ $.get("content/data.json").done(function (data) {
         window.stage.getCurrentScene().setFrame($("#stage-scroll").scrollTop());
         $("#info").html(window.stage.getCurrentScene().getCurrentFrame().toString());
     }).resize(function (e) {
-        $("#stage-scroll-beef").height($("#stage-container").height() + window.stage.getCurrentScene().getMaxFrames());
+        $("#stage-scroll-beef").height($("#stage-scroll").height() + window.stage.getCurrentScene().getMaxFrames());
     }).trigger("resize");
 });
 

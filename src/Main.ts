@@ -10,7 +10,7 @@ $.get("content/data.json").done((data: string) => {
         window.stage.getCurrentScene().setFrame($("#stage-scroll").scrollTop());
         $("#info").html(window.stage.getCurrentScene().getCurrentFrame().toString());
     }).resize((e) => {
-        $("#stage-scroll-beef").height($("#stage-container").height() + window.stage.getCurrentScene().getMaxFrames());
+        $("#stage-scroll-beef").height($("#stage-scroll").height() + window.stage.getCurrentScene().getMaxFrames());
     }).trigger("resize");
 });
 
