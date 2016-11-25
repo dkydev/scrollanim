@@ -10241,21 +10241,15 @@ exports["default"] = Keyframe;
 var Stage_1 = require("./Stage");
 var $ = require("jquery");
 $.get("content/data.json").done(function (data) {
-    window.stage = new Stage_1["default"]($("#stage").get(0), data);
+    window.stage = new Stage_1["default"](document.getElementById("stage-container"), data);
     window.stage.loadScene("scene_1");
-    $("#stage-scroll").scroll(function (e) {
-        window.stage.getCurrentScene().setFrame($("#stage-scroll").scrollTop());
-        $("#info").html(window.stage.getCurrentScene().getCurrentFrame().toString());
-    }).resize(function (e) {
-        $("#stage-scroll-beef").height($("#stage-scroll").height() + window.stage.getCurrentScene().getMaxFrames());
-    }).trigger("resize");
 });
 
 },{"./Stage":6,"jquery":1}],4:[function(require,module,exports){
 "use strict";
 var Keyframe_1 = require("./Keyframe");
 var Prop = (function () {
-    function Prop(data, container) {
+    function Prop(data, stageElement) {
         this.id = data["id"];
         this.src = data["src"];
         this.z = data["z"];
@@ -10266,8 +10260,10 @@ var Prop = (function () {
         this.keyframes.sort(function (a, b) {
             return a.start > b.start ? 1 : -1;
         });
-        this.element = $("<img>").attr("id", this.id).attr("src", this.src).get(0);
-        this.container = container;
+        this.element = document.createElement("img");
+        this.element.setAttribute("id", this.id);
+        this.element.setAttribute("src", this.src);
+        this.stageElement = stageElement;
     }
     Prop.prototype.setFrame = function (frame) {
         this.currentFrame = frame;
@@ -10305,10 +10301,10 @@ var Prop = (function () {
         }
     };
     Prop.prototype.attach = function () {
-        $(this.container).append(this.element);
+        this.stageElement.appendChild(this.element);
     };
     Prop.prototype.detach = function () {
-        $(this.element).detach();
+        this.stageElement.removeChild(this.element);
     };
     Prop.prototype.render = function (position, start, end) {
         if (!end) {
@@ -10322,14 +10318,12 @@ var Prop = (function () {
         }
         this.x = (end.x - start.x) * position + start.x;
         this.y = (end.y - start.y) * position + start.y;
-        $(this.element).css({
-            "position": "absolute",
-            "width": this.width ? this.width + "px" : "auto",
-            "height": this.height ? this.height + "px" : "auto",
-            "left": this.x + "px",
-            "top": this.y + "px",
-            "z-index": this.z
-        });
+        this.element.style.position = "absolute";
+        this.element.style.width = this.width ? this.width + "px" : "auto";
+        this.element.style.height = this.height ? this.height + "px" : "auto";
+        this.element.style.left = this.x + "px";
+        this.element.style.top = this.y + "px";
+        this.element.style.zIndex = this.z.toString();
     };
     return Prop;
 }());
@@ -10347,7 +10341,7 @@ var Scene = (function () {
         this.props = {};
         for (var i in data["props"]) {
             var propData = data["props"][i];
-            this.props[propData["id"]] = new Prop_1["default"](propData, this.stage.getContainer());
+            this.props[propData["id"]] = new Prop_1["default"](propData, this.stage.getStageElement());
             this.maxFrames = Math.max(this.maxFrames, this.props[propData["id"]].getMaxFrames());
         }
     }
@@ -10377,31 +10371,50 @@ var Scene_1 = require("./Scene");
 var Stage = (function () {
     function Stage(container, data) {
         this.container = container;
-        this.data = data;
+        this.stageElement = document.createElement("div");
+        this.stageElement.className = "stage";
+        this.stageScrollElement = document.createElement("div");
+        this.stageScrollElement.className = "stage-scroll";
+        this.stageScrollPaddingElement = document.createElement("div");
+        this.stageScrollPaddingElement.className = "stage-scroll-padding";
+        this.stageScrollElement.appendChild(this.stageScrollPaddingElement);
+        this.container.appendChild(this.stageScrollElement);
+        this.container.appendChild(this.stageElement);
+        this.scenes = {};
+        for (var i in data["scenes"]) {
+            this.scenes[data["scenes"][i]["id"]] = new Scene_1["default"](this, data["scenes"][i]);
+        }
     }
     Stage.prototype.loadScene = function (id) {
-        var scene = this.getScene(id);
+        if (!this.scenes[id]) {
+            throw "Scene not found.";
+        }
+        var scene = this.scenes[id];
         if (scene) {
             this.currentScene = scene;
             this.currentScene.load();
+            this.attachScrollListener();
         }
     };
-    Stage.prototype.getContainer = function () {
-        return this.container;
+    Stage.prototype.attachScrollListener = function () {
+        var self = this;
+        this.stageScrollElement.addEventListener('scroll', function (e) {
+            self.scrollY = self.stageScrollElement.scrollTop;
+            if (!self.scrollLock) {
+                window.requestAnimationFrame(function () {
+                    self.currentScene.setFrame(self.scrollY);
+                    self.scrollLock = false;
+                });
+                self.scrollLock = true;
+            }
+        });
+        self.stageScrollPaddingElement.style.height = self.stageScrollElement.style.height + self.currentScene.getMaxFrames() + "px";
+    };
+    Stage.prototype.getStageElement = function () {
+        return this.stageElement;
     };
     Stage.prototype.getCurrentScene = function () {
         return this.currentScene;
-    };
-    Stage.prototype.getScene = function (id) {
-        var sceneData = this.data["scenes"].filter(function (scene) {
-            return scene["id"] = id;
-        }).pop();
-        if (sceneData) {
-            return new Scene_1["default"](this, sceneData);
-        }
-        else {
-            return null;
-        }
     };
     return Stage;
 }());

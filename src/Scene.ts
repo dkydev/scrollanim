@@ -22,7 +22,7 @@ export default class Scene {
         this.props = {};
         for (var i in data["props"]) {
             var propData = data["props"][i];
-            this.props[propData["id"]] = new Prop(propData, this.stage.getContainer());
+            this.props[propData["id"]] = new Prop(propData, this.stage.getStageElement());
             // Find max frames.
             this.maxFrames = Math.max(this.maxFrames, this.props[propData["id"]].getMaxFrames());
         }

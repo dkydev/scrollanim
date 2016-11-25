@@ -6,8 +6,8 @@ export default class Prop {
     public src: string;
 
 
-    private element: Element;
-    private container: Element;
+    private element: HTMLElement;
+    private stageElement: HTMLElement;
     private currentFrame: number;
     private keyframes: Keyframe[];
 
@@ -18,7 +18,7 @@ export default class Prop {
     private y: number;
     private z: number;
 
-    constructor(data: any, container: Element) {
+    constructor(data: any, stageElement: HTMLElement) {
         this.id = data["id"];
         this.src = data["src"];
         this.z = data["z"];
@@ -33,8 +33,11 @@ export default class Prop {
             return a.start > b.start ? 1 : -1;
         });
 
-        this.element = $("<img>").attr("id", this.id).attr("src", this.src).get(0);
-        this.container = container;
+        this.element = document.createElement("img");
+        this.element.setAttribute("id", this.id);
+        this.element.setAttribute("src", this.src);
+
+        this.stageElement = stageElement;
     }
 
     public setFrame(frame: number): void {
@@ -79,11 +82,11 @@ export default class Prop {
     }
 
     public attach(): void {
-        $(this.container).append(this.element);
+        this.stageElement.appendChild(this.element);
     }
 
     public detach(): void {
-        $(this.element).detach();
+        this.stageElement.removeChild(this.element);
     }
 
     public render(position: number, start: Keyframe, end: Keyframe): void {
@@ -102,14 +105,12 @@ export default class Prop {
         this.x = (end.x - start.x) * position + start.x;
         this.y = (end.y - start.y) * position + start.y;
 
-        $(this.element).css({
-            "position": "absolute",
-            "width": this.width ? this.width + "px" : "auto",
-            "height": this.height ? this.height + "px" : "auto",
-            "left": this.x + "px",
-            "top": this.y + "px",
-            "z-index": this.z
-        });
+        this.element.style.position = "absolute";
+        this.element.style.width = this.width ? this.width + "px" : "auto";
+        this.element.style.height = this.height ? this.height + "px" : "auto";
+        this.element.style.left = this.x + "px";
+        this.element.style.top = this.y + "px";
+        this.element.style.zIndex = this.z.toString();
     }
 
 }

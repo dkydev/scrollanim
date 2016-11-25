@@ -5,16 +5,14 @@ html, body {
 }
 
 #stage-container {
-    
     overflow:hidden;
     position:absolute;
-    top:0px;
-    left:220px;
-    right:0px;
-    bottom:0px;
+    margin:50px;
+    width:800px;
+    height:600px;
 }
 
-#stage {
+.stage {
     position: absolute;
     overflow: hidden;
     top: 0px;
@@ -25,7 +23,7 @@ html, body {
     min-height: 100%;
 }
 
-#stage-scroll {
+.stage-scroll {
     overflow: auto;
     z-index: 1000000;
     position: absolute;
